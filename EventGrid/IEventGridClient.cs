@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Cfg.Db;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SharpEventGrid {
