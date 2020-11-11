@@ -4,10 +4,6 @@ using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using SharpEventGrid;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ListenerEventGrid
 {
@@ -18,37 +14,26 @@ namespace ListenerEventGrid
 
         static void Main(string[] args)
         {
-            Console.WriteLine("***EventGrid Listener Iniciado***");
-
-            var eventGridUrl = "https://new-cars.southcentralus-1.eventgrid.azure.net/api/events";
-            var eventGridKey = "YJW+hGFNyCmLHfBycJDSwGqbg7Ds9ZU1mPZKXIksaxk=";
-            //var resourceGroupName = "Demo-EventGrid";
-            //var topicName = "new-cars";
-            //var eventSubscriptionName = "queue-sub";
+            var hybridRelayUrl = "Endpoint=sb://relayeventgrid.servicebus.windows.net/;SharedAccessKeyName=relaysas;SharedAccessKey=j11GFk1GcOEXbwcpXuRvBSCzl7bOavQCn4abjsTrCRs=;EntityPath=eventgrid";
+            //var eventGridUrl = "https://new-cars.southcentralus-1.eventgrid.azure.net/api/events";
+            //var eventGridKey = "YJW+hGFNyCmLHfBycJDSwGqbg7Ds9ZU1mPZKXIksaxk=";
 
             services = new ServiceCollection();
 
             //Se crea la conexión
-            //services.AddSingleton<IEventBus, EventGridCli>(sp =>
-            //{
-            //    var eventGridSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-            //    return new EventGridCli(new Uri(eventGridUrl), eventGridKey, resourceGroupName, topicName, eventSubscriptionName, eventGridUrl, eventGridSubcriptionsManager);
-            //});
+            services.AddSingleton<IEventBus, EventGridCli>(sp =>
+            {
+                var eventGridSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+                return new EventGridCli(hybridRelayUrl);
+            });
 
-            //services.AddTransient<EventMessageHandler>();
-            //services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-            //var clientConnection = new EventGridCli(new Uri(eventGridUrl), eventGridKey, resourceGroupName, topicName, eventSubscriptionName, eventGridUrl);
-            var clientConnection = new EventGridCli(new Uri(eventGridUrl), eventGridKey);
-            clientConnection.Subscribe<Event, EventMessageHandler>();
-            //ConfigureEventBusSuscribe(services);
+            services.AddTransient<EventMessageHandler>();
+            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
+
+            var eventBus = services.BuildServiceProvider().GetRequiredService<IEventBus>();
+            eventBus.Subscribe<Event, EventMessageHandler>();
+
             Console.ReadKey();
         }
-
-        //public static void ConfigureEventBusSuscribe(IServiceCollection services)
-        //{
-        //    //Llamamos al método genérico de la interfaz de IEventBus "Suscribe"
-        //    eventBus = services.BuildServiceProvider().GetService<IEventBus>();
-        //    eventBus.Subscribe<Event, EventMessageHandler>();
-        //}
     }
 }

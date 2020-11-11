@@ -9,10 +9,10 @@ namespace EventGrid.MessageEvent
 {
     public class EventMessageHandler : IIntegrationEventHandler<Event>
     {
-        public Task Handle(Event @event)
+        public async Task Handle(Event @event)
         {
             Console.WriteLine(@event.Data.ToString());
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
     }
 }
